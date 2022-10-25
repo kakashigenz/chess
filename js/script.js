@@ -61,7 +61,7 @@ function onDragStart(source, piece, position, orientation) {
 function onDrop(source, target) {
   // kiểm tra nước đi hợp lệ
   var res = {
-    IsMaxmizer: true,
+    isMaxmizer: true,
   };
 
   var move = game.move({
@@ -76,35 +76,37 @@ function onDrop(source, target) {
     return item.map((item) => {
       if (item) {
         return {
-          Chess: table[item.type].name,
-          Value:
+          chess: table[item.type].name,
+          value:
             item.color === "w"
               ? -table[item.type].value
               : table[item.type].value,
-          IsMoved: true,
+          isMoved: true,
         };
       } else {
         return {
-          Chess: 0,
+          chess: 0,
           value: 0,
-          IsMoved: false,
+          isMoved: false,
         };
       }
     });
   });
 
-  res.Pieces = board;
+  res.pieces = board;
   console.log(res);
-  $.ajax({
-    url: "http://localhost:5000/api/chess/nextstep",
-    method: "POST",
-    crossDomain: true,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    data: JSON.stringify(res),
-    success: function (data) {
-      console.log(data);
-    },
-  });
+  if (game.turn() == "b") {
+    $.ajax({
+      url: "https://localhost:5001/api/chess/nextstep",
+      method: "POST",
+      crossDomain: true,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      data: JSON.stringify(res),
+      success: function (data) {
+        console.log(data);
+      },
+    });
+  }
   // kiem tra quan co nao vua di
   if (game.turn() == "b") {
     removeHighlights("white");
