@@ -101,22 +101,22 @@ namespace API.Service
             switch (piece.Chess)
             {
                 case Enum.ChessEnum.Pawn:
-                    NextStepPawn(x, y, board);
+                    result = NextStepPawn(x, y, board);
                     break;
                 case Enum.ChessEnum.Rook:
-                    NextStepRook(x, y, board);
+                    result = NextStepRook(x, y, board);
                     break;
                 case Enum.ChessEnum.Bishop:
-                    NextStepBishop(x, y, board);
+                    result = NextStepBishop(x, y, board);
                     break;
                 case Enum.ChessEnum.Knight:
-                    NextStepKnight(x, y, board);
+                    result = NextStepKnight(x, y, board);
                     break;
                 case Enum.ChessEnum.Queen:
-                    NextStepQueen(x, y, board);
+                    result = NextStepQueen(x, y, board);
                     break;
                 case Enum.ChessEnum.King:
-                    NextStepKing(x, y, board);
+                    result = NextStepKing(x, y, board);
                     break;
             }
             return result;

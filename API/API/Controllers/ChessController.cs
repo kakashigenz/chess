@@ -22,7 +22,7 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("nextstep")]
-        public BaseResponse GetNextStep([FromBody] ChessParam param)
+        public BaseResponse GetNextStep([FromBody]ChessParam param)
         {
             var response = new BaseResponse();
             try
