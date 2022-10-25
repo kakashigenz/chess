@@ -18,6 +18,32 @@ var game = new Chess();
 var whiteSquareGrey = "#a9a9a9";
 var blackSquareGrey = "#696969";
 var squareClass = "square-55d63";
+var table = {
+  k: {
+    name: 1,
+    value: 100,
+  },
+  q: {
+    name: 2,
+    value: 9,
+  },
+  r: {
+    name: 3,
+    value: 4,
+  },
+  n: {
+    name: 4,
+    value: 3,
+  },
+  b: {
+    name: 5,
+    value: 3,
+  },
+  p: {
+    name: 6,
+    value: 1,
+  },
+};
 //khai bao su kien
 function onDragStart(source, piece, position, orientation) {
   // không được di chuyển quân cờ nếu trò chơi kết thúc
@@ -34,16 +60,51 @@ function onDragStart(source, piece, position, orientation) {
 
 function onDrop(source, target) {
   // kiểm tra nước đi hợp lệ
-  console.log(game.turn());
+  var res = {
+    IsMaxmizer: true,
+  };
+
   var move = game.move({
     from: source,
     to: target,
     promotion: "q", // luôn phong cấp quân hậu
   });
-
   // nước đi không hợp lệ
   if (move === null) return "snapback";
-  console.log(game.turn());
+
+  var board = game.board().map((item) => {
+    return item.map((item) => {
+      if (item) {
+        return {
+          Chess: table[item.type].name,
+          Value:
+            item.color === "w"
+              ? -table[item.type].value
+              : table[item.type].value,
+          IsMoved: true,
+        };
+      } else {
+        return {
+          Chess: 0,
+          value: 0,
+          IsMoved: false,
+        };
+      }
+    });
+  });
+
+  res.Pieces = board;
+  console.log(res);
+  $.ajax({
+    url: "http://localhost:5000/api/chess/nextstep",
+    method: "POST",
+    crossDomain: true,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    data: JSON.stringify(res),
+    success: function (data) {
+      console.log(data);
+    },
+  });
   // kiem tra quan co nao vua di
   if (game.turn() == "b") {
     removeHighlights("white");
