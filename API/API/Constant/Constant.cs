@@ -2,7 +2,6 @@
 {
     public static class Constant
     {
-        public const string Name = "name";
         public static readonly int King = 100;
         public static readonly int Queen = 9;
         public static readonly int Rook = 4;

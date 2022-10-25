@@ -5,11 +5,11 @@
         /// <summary>
         /// Không
         /// </summary>
-        None,
+        None = 0,
         /// <summary>
         /// Vua
         /// </summary>
-        King,
+        King = 1,
         /// <summary>
         /// Hậu
         /// </summary>
