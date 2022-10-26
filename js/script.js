@@ -44,6 +44,27 @@ var table = {
     value: 1,
   },
 };
+var pawnPos = [
+  "a7",
+  "b7",
+  "c7",
+  "d7",
+  "e7",
+  "f7",
+  "g7",
+  "h7",
+  "a2",
+  "b2",
+  "c2",
+  "d2",
+  "e2",
+  "f2",
+  "g2",
+  "h2",
+];
+// mang vi tri bat dau cua vua va xe
+var karPos = ["a8", "e8", "h8", "a1", "e1", "h1"];
+var checkMove = new Map();
 //khai bao su kien
 function onDragStart(source, piece, position, orientation) {
   // không được di chuyển quân cờ nếu trò chơi kết thúc
@@ -69,19 +90,42 @@ function onDrop(source, target) {
     to: target,
     promotion: "q", // luôn phong cấp quân hậu
   });
+
   // nước đi không hợp lệ
   if (move === null) return "snapback";
 
+  // danh dau xe hoac vua da di chuyen
+  if (
+    (move.piece === "r" || move.piece === "k") &&
+    karPos.includes(move.from)
+  ) {
+    checkMove.has(move.from) || checkMove.set(move.from, true);
+  }
+
   var board = game.board().map((item) => {
     return item.map((item) => {
+      var move = false;
+
+      // tao phan tu piece
       if (item) {
+        //kiem tra quan co da di chua
+        if (item.type === "p" && !pawnPos.includes(item.square)) {
+          move = true;
+        } else if (item.type === "r" || item.type === "k") {
+          if (!karPos.includes(item.square)) {
+            move = true;
+          } else if (checkMove.has(item.square)) {
+            move = true;
+          }
+        }
+
         return {
           chess: table[item.type].name,
           value:
             item.color === "w"
               ? -table[item.type].value
               : table[item.type].value,
-          isMoved: true,
+          isMoved: move,
         };
       } else {
         return {
@@ -95,18 +139,21 @@ function onDrop(source, target) {
 
   res.pieces = board;
   console.log(res);
-  if (game.turn() == "b") {
-    $.ajax({
-      url: "https://localhost:5001/api/chess/nextstep",
-      method: "POST",
-      crossDomain: true,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      data: JSON.stringify(res),
-      success: function (data) {
-        console.log(data);
-      },
-    });
-  }
+
+  //ajax call
+
+  // if (game.turn() == "b") {
+  //   $.ajax({
+  //     url: "https://localhost:5001/api/chess/nextstep",
+  //     method: "POST",
+  //     crossDomain: true,
+  //     headers: { "Access-Control-Allow-Origin": "*" },
+  //     data: JSON.stringify(res),
+  //     success: function (data) {
+  //       console.log(data);
+  //     },
+  //   });
+  // }
   // kiem tra quan co nao vua di
   if (game.turn() == "b") {
     removeHighlights("white");
