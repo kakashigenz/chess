@@ -35,8 +35,8 @@ namespace API
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://example.com",
-                                                          "http://www.contoso.com");
+                                      policy.WithOrigins("http://127.0.0.1:5500/").AllowAnyHeader()
+                                                  .AllowAnyMethod();
                                   });
             });
             services.AddControllers();
@@ -65,6 +65,7 @@ namespace API
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();
             app.UseRouting();
 
             app.UseAuthorization();
