@@ -142,18 +142,17 @@ function onDrop(source, target) {
 
   //ajax call
 
-  // if (game.turn() == "b") {
-  //   $.ajax({
-  //     url: "https://localhost:5001/api/chess/nextstep",
-  //     method: "POST",
-  //     crossDomain: true,
-  //     headers: { "Access-Control-Allow-Origin": "*" },
-  //     data: JSON.stringify(res),
-  //     success: function (data) {
-  //       console.log(data);
-  //     },
-  //   });
-  // }
+  if (game.turn() == "b") {
+    $.ajax({
+      url: "https://localhost:5001/api/chess/nextstep",
+      method: "POST",
+      data: JSON.stringify(res),
+      contentType: "application/json",
+      success: function (data) {
+        console.log(data);
+      },
+    });
+  }
   // kiem tra quan co nao vua di
   if (game.turn() == "b") {
     removeHighlights("white");
