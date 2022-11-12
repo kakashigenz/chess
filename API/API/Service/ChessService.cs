@@ -45,17 +45,10 @@ namespace API.Service
                             boardTmp[i][j] = new Piece();
                             var value1 = Minimax(depth - 1, boardTmp, value + val, alpha, beta, !isMax, ref result);
                             bestVal = isMax ? Math.Max(bestVal, value1) : Math.Min(bestVal, value1);
-                            if (isMax)
+                            if (isMax && alpha < bestVal)
                             {
-                                alpha = Math.Max(alpha, bestVal);
-                            }
-                            else
-                            {
-                                beta = Math.Min(beta, bestVal);
-                            }
-                            if(beta < alpha)
-                            {
-                                if(depth == _option.Depth)
+                                alpha = bestVal;
+                                if (depth == _option.Depth)
                                 {
                                     result = new NextStepResponse()
                                     {
@@ -64,6 +57,23 @@ namespace API.Service
                                     };
 
                                 }
+                            }
+                            else if(beta > alpha)
+                            {
+                                beta = bestVal;
+                                if (depth == _option.Depth)
+                                {
+                                    result = new NextStepResponse()
+                                    {
+                                        CurrentStep = new Step(i, j),
+                                        NextStep = step,
+                                    };
+
+                                }
+                            }
+                            if(beta <= alpha)
+                            {
+                                
                                 return bestVal;
                             }
                         }
