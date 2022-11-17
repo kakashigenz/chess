@@ -10,14 +10,18 @@ namespace API.Service
     public class ChessService : IChessService
     {
         private ChessOption _option;
+        private List<NextStepResponse> steps;
+        private int beginVal = 0;
 
         public ChessService(IOptions<ChessOption> option)
         {
             _option = option.Value;
+            steps = new List<NextStepResponse>();
         }
 
         public NextStepResponse GetNextStep(ChessParam param)
         {
+            beginVal = ValBoard(param.Pieces);
             var result = new NextStepResponse();
             Minimax(_option.Depth, param.Pieces, 0, -1000, 1000, param.IsMaxmizer, ref result);
             return result;
@@ -41,6 +45,19 @@ namespace API.Service
                 }
             }
             return newBoard;
+        }
+
+        private int ValBoard(List<List<Piece>> board)
+        {
+            int res = 0;
+            for (int i = 0; i < board.Count; i++)
+            {
+                foreach (var piece in board[i])
+                {
+                    res += piece.Value;
+                }
+            }
+            return res;
         }
         #region Minimax
         private int Minimax(int depth, List<List<Piece>> board, int value, int alpha, int beta, bool isMax, ref NextStepResponse result)
@@ -71,53 +88,72 @@ namespace API.Service
                             boardTmp[i][j] = new Piece();
                             var value1 = Minimax(depth - 1, boardTmp, value - val, alpha, beta, !isMax, ref result);
                             bestVal = isMax ? Math.Max(bestVal, value1) : Math.Min(bestVal, value1);
-                            if (isMax && alpha < bestVal)
-                            {
-                                alpha = bestVal;
-                                if (depth == _option.Depth)
-                                {
-                                    result = new NextStepResponse()
-                                    {
-                                        CurrentStep = new Step(i, j),
-                                        NextStep = step,
-                                    };
-
-                                }
-                            }
-                            else if(!isMax && beta > alpha)
-                            {
-                                beta = bestVal;
-                                if (depth == _option.Depth)
-                                {
-                                    result = new NextStepResponse()
-                                    {
-                                        CurrentStep = new Step(i, j),
-                                        NextStep = step,
-                                    };
-
-                                }
-                            }
-                            if(beta <= alpha)
+                            if (isMax && alpha <= bestVal)
                             {
                                 
+                                
+                                if (depth == _option.Depth)
+                                {
+                                    if (alpha < bestVal)
+                                    {
+                                        steps = new List<NextStepResponse>();
+                                    }
+                                    steps.Add(new NextStepResponse()
+                                        {
+                                            CurrentStep = new Step(i, j),
+                                            NextStep = step,
+                                        });
+
+                                }
+                                alpha = bestVal;
+                            }
+                            else if(!isMax && bestVal < beta)
+                            {
+                                
+                                
+                                if (depth == _option.Depth)
+                                {
+                                    if (beta > bestVal)
+                                    {
+                                        steps = new List<NextStepResponse>();
+                                    }
+                                    steps.Add(new NextStepResponse()
+                                        {
+                                            CurrentStep = new Step(i, j),
+                                            NextStep = step,
+                                        });
+
+                                }
+                                beta = bestVal;
+                            }
+                            if (beta <= alpha)
+                            {
+
                                 return bestVal;
                             }
                         }
                     }
                 }
             }
+            if ((result == null || result.CurrentStep == null) && depth == _option.Depth)
+            {
+                Random rng = new Random();
+                result = steps[rng.Next(steps.Count)];
+            }
             return bestVal;
         }
 
         private bool CheckEnd(List<List<Piece>> board)
         {
+            int count = 0;
             for (int i = 0; i < _option.Size; i++)
             {
                 for (int j = 0; j < _option.Size; j++)
                 {
-                    if (board[i][j].Value == Constant.Constant.King)
+                    if (board[i][j].Chess == Enum.ChessEnum.King)
                     {
-                        return false;
+                        count++;
+                        if(count > 1)   return false;
                     }
                 }
             }
@@ -168,10 +204,10 @@ namespace API.Service
         {
             var result = new List<Step>();
             var tmp = board[x][y].Value > 0 ? 1 : -1;
-            if (x + tmp > _option.Size && board[x + tmp][y].Chess == Enum.ChessEnum.None)
+            if (x + tmp >= 0 && x + tmp < _option.Size && board[x + tmp][y].Chess == Enum.ChessEnum.None)
             {
                 result.Add(new Step(x + tmp, y));
-                if (board[x][y].IsMoved && x + 2 * tmp > _option.Size && board[x + 2 * tmp][y].Chess == Enum.ChessEnum.None)
+                if (!board[x][y].IsMoved && x + 2*tmp >= 0 && x + 2 * tmp < _option.Size && board[x + 2 * tmp][y].Chess == Enum.ChessEnum.None)
                 {
                     result.Add(new Step(x + 2 * tmp, y));
                 }
